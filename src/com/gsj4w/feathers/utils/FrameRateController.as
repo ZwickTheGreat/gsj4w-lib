@@ -5,21 +5,20 @@ package com.gsj4w.feathers.utils {
 	import flash.events.TimerEvent;
 	import flash.events.TouchEvent;
 	import flash.utils.getTimer;
-	import flash.utils.Timer;
 	import starling.core.Starling;
+	import starling.events.EnterFrameEvent;
 	
 	/**
-	 * Kontroler, ktery se stara o snizovani framerate pri necinnosti.
+	 * FrameRate controller that handles user's inactivity and lowers stage's fps if detected.
 	 * @author Jakub Wagner, J4W
 	 */
 	public class FrameRateController {
-		static private const FPS_TIMER_DELAY:Number = 5000;
-		static private const FPS_NORMAL:Number = 60;
-		static private const FPS_IDLE:Number = 3;
+		static private var userActivityTime:int = 3000;
+		static private var fpsNormal:int = 60;
+		static private var fpsIdle:int = 3;
 		
 		static private var stage:Stage;
 		static private var current:Starling;
-		static private var fpsTimer:Timer;
 		
 		static private var stayActiveLock:uint = 0;
 		
@@ -27,14 +26,14 @@ package com.gsj4w.feathers.utils {
 		}
 		
 		/**
-		 * True, pokud je kontroller spravne inicializovan.
+		 * True, if controller is inicialized.
 		 * @see init()
 		 */
 		static public function isInicialized():Boolean {
 			return stage != null;
 		}
 		
-		static public function init(current:Starling):void {
+		static public function init(current:Starling, userActivityTime:int = 3000, fpsNormal:int = 60, fpsIdle:int = 3):void {
 			FrameRateController.current = current;
 			FrameRateController.stage = current.nativeStage;
 			
@@ -46,35 +45,23 @@ package com.gsj4w.feathers.utils {
 			stage.addEventListener(MouseEvent.MOUSE_MOVE, onNativeStageMouseEvent);
 			stage.addEventListener(MouseEvent.MOUSE_WHEEL, onNativeStageMouseEvent);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, onStageKeyDown);
-			
-			fpsTimer = new Timer(FPS_TIMER_DELAY);
-			fpsTimer.addEventListener(TimerEvent.TIMER, onTimerTimer);
-			fpsTimer.start();
+			current.stage.addEventListener(EnterFrameEvent.ENTER_FRAME, onStageEnterFrame);
 		}
 		
 		static public function setIdleFrameRate():void {
 			if (!stage)
 				throw new Error("FrameRateController must be inicialized first!");
-			if (stage.frameRate != FPS_IDLE) {
-				//Debugger.log("FrameRateController::setIdleFrameRate() FPS_IDLE = " + FPS_IDLE);
-				/* Silence is golden */
-				stage.frameRate = FPS_IDLE;
+			if (stage.frameRate != fpsIdle) {
+				stage.frameRate = fpsIdle;
 			}
 		}
 		
 		static public function setNormalFrameRate():void {
 			if (!stage)
 				throw new Error("FrameRateController must be inicialized first!");
-			fpsTimer.reset();
-			fpsTimer.delay = FPS_TIMER_DELAY; // nastavim zpet cas timeru
-			fpsTimer.start();
-			if (stage.frameRate != FPS_NORMAL) {
-				//Debugger.log("FrameRateController::setNormalFrameRate() FPS_NORMAL = " + FPS_NORMAL);
-				/* Silence is golden */
-				stage.frameRate = FPS_NORMAL;
+			if (stage.frameRate == fpsIdle) {
+				stage.frameRate = fpsNormal;
 			}
-			
-			stayActiveLock = getTimer() + FPS_TIMER_DELAY;
 		}
 		
 		/**
@@ -85,13 +72,9 @@ package com.gsj4w.feathers.utils {
 			if (!stage)
 				throw new Error("FrameRateController must be inicialized first!");
 			
-			if (stage.frameRate == FPS_IDLE || stayActiveLock < getTimer() + miliseconds) {
-				setNormalFrameRate();
-				fpsTimer.reset();
-				fpsTimer.delay = miliseconds;
-				fpsTimer.start();
-				
+			if (stayActiveLock < getTimer() + miliseconds) {
 				stayActiveLock = getTimer() + miliseconds;
+				setNormalFrameRate();
 			}
 		}
 		
@@ -99,21 +82,21 @@ package com.gsj4w.feathers.utils {
 		 * Pri klavesovym vstupu zvysuju framerate (aktivita)
 		 */
 		static private function onStageKeyDown(e:KeyboardEvent):void {
-			setNormalFrameRate();
+			stayActive(userActivityTime);
 		}
 		
 		/**
 		 * Pri dotyku zvysuju framerate (aktivita)
 		 */
 		static private function onNativeStageTouchEvent(e:TouchEvent):void {
-			setNormalFrameRate();
+			stayActive(userActivityTime);
 		}
 		
 		/**
 		 * Pri vstupu z mysi zvysuju framerate (aktivita)
 		 */
 		static private function onNativeStageMouseEvent(e:MouseEvent):void {
-			setNormalFrameRate();
+			stayActive(userActivityTime);
 		}
 		
 		/**
@@ -121,6 +104,18 @@ package com.gsj4w.feathers.utils {
 		 */
 		private static function onTimerTimer(e:TimerEvent):void {
 			setIdleFrameRate();
+		}
+		
+		static private function onStageEnterFrame(e:EnterFrameEvent):void {
+			if (getTimer() < stayActiveLock) {
+				if (stage.frameRate == fpsIdle) {
+					stage.frameRate = fpsNormal;
+				}
+			} else {
+				if (stage.frameRate != fpsIdle) {
+					stage.frameRate = fpsIdle;
+				}
+			}
 		}
 	
 	}
