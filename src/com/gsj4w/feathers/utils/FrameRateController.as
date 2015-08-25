@@ -34,6 +34,7 @@ package com.gsj4w.feathers.utils {
 		}
 		
 		static public function init(current:Starling, userActivityTime:int = 3000, fpsNormal:int = 60, fpsIdle:int = 3):void {
+			FrameRateController.userActivityTime = userActivityTime;
 			FrameRateController.current = current;
 			FrameRateController.stage = current.nativeStage;
 			
