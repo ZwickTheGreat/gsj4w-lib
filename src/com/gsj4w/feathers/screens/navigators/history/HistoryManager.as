@@ -16,6 +16,8 @@ package com.gsj4w.feathers.screens.navigators.history {
 		 */
 		public var screenIdsStackBlackList:Array = [];
 		
+		public var defaultBackTransition:Function = Slide.createSlideRightTransition();
+		
 		protected var screenIdsStack:Vector.<HistoryItem> = new Vector.<HistoryItem>();
 		
 		protected var abstractScreenNavigator:AbstractScreenNavigator;
@@ -38,7 +40,7 @@ package com.gsj4w.feathers.screens.navigators.history {
 			if (event && event.data && event.data.transition)
 				ease = event.data.transition;
 			else
-				ease = Slide.createSlideRightTransition();
+				ease = defaultBackTransition;
 			
 			abstractScreenNavigator.showScreen(historyItem.screenId, ease);
 			
@@ -64,7 +66,7 @@ package com.gsj4w.feathers.screens.navigators.history {
 				}
 				screenIdsStack = screenIdsStack.slice(0, index);
 				
-				var ease:Function = event.data.transition || Slide.createSlideRightTransition();
+				var ease:Function = event.data.transition || defaultBackTransition;
 				
 				abstractScreenNavigator.showScreen(event.data.screenId, ease);
 			}

@@ -1,7 +1,6 @@
 package com.gsj4w.feathers.screens.navigators.history {
 	import com.gsj4w.feathers.screens.data.SharedData;
 	import com.gsj4w.feathers.screens.navigators.AbstractScreenNavigator;
-	import feathers.motion.Slide;
 	import starling.events.Event;
 	
 	/**
@@ -37,7 +36,7 @@ package com.gsj4w.feathers.screens.navigators.history {
 			if (event && event.data && event.data.transition)
 				ease = event.data.transition;
 			else
-				ease = Slide.createSlideRightTransition();
+				ease = defaultBackTransition
 			
 			abstractScreenNavigator.showScreen(historyItem.screenId, ease);
 			

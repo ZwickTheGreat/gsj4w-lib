@@ -19,7 +19,7 @@ package com.gsj4w.feathers.screens.navigators {
 		protected var historyManager:HistoryManager;
 		
 		public function AbstractScreenNavigator() {
-			transitionManager = new ScreenSlidingStackTransitionManager(this);
+			createTransitionManager();
 			createHistoryManager();
 			
 			addEventListener(FeathersEventType.TRANSITION_COMPLETE, onTransitionComplete);
@@ -43,8 +43,16 @@ package com.gsj4w.feathers.screens.navigators {
 			return super.showScreen(id, transition);
 		}
 		
+		protected function createTransitionManager():void {
+			transitionManager = new ScreenSlidingStackTransitionManager(this);
+		}
+		
 		protected function createHistoryManager():void {
 			historyManager = new HistoryManager(this);
+		}
+		
+		protected function handleBack(event:Event):void {
+			historyManager.handleBack(event);
 		}
 		
 		protected function onTransitionComplete(e:Event):void {
@@ -52,10 +60,6 @@ package com.gsj4w.feathers.screens.navigators {
 			if (abstractScreen) {
 				abstractScreen.doDelayedInitialisation();
 			}
-		}
-		
-		protected function handleBack(event:Event):void {
-			historyManager.handleBack(event);
 		}
 	
 	}
