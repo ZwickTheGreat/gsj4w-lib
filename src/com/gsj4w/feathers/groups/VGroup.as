@@ -14,7 +14,8 @@ package com.gsj4w.feathers.groups {
 			scaledActualHeight = actualHeight = 0;
 			
 			if (!isNaN(explicitWidth)) {
-				scaledActualWidth = actualWidth = explicitWidth;
+				actualWidth = explicitWidth;
+				scaledActualWidth = actualWidth * scaleX;
 			}
 			
 			var totalSize:Number = 0;
@@ -48,7 +49,8 @@ package com.gsj4w.feathers.groups {
 				}
 			}
 			
-			scaledActualHeight = actualHeight = paddingTop + totalSize + paddingBottom;
+			actualHeight = paddingTop + totalSize + paddingBottom;
+			scaledActualHeight = actualHeight * scaleY;
 		}
 		
 		override public function measureItems():void {
@@ -61,8 +63,9 @@ package com.gsj4w.feathers.groups {
 					
 					var itemWidth:Number = getItemWidth(displayObject);
 					
-					if (scaledActualWidth < itemWidth) {
-						scaledActualWidth = actualWidth = itemWidth;
+					if (actualWidth < itemWidth) {
+						actualWidth = itemWidth;
+						scaledActualWidth = actualWidth * scaleX;
 					}
 				}
 			}
