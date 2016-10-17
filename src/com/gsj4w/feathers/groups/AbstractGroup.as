@@ -37,7 +37,7 @@ package com.gsj4w.feathers.groups {
 		protected var groupItems:Vector.<GroupItem> = new Vector.<GroupItem>()
 		
 		private var _background:DisplayObject;
-		private var backgroundHolder:Sprite;
+		protected var backgroundHolder:Sprite;
 		private var _backgroundAutoSize:Boolean = false;
 		
 		public function AbstractGroup() {
@@ -139,9 +139,11 @@ package com.gsj4w.feathers.groups {
 		 * Removes all items from group.
 		 */
 		public function clear(dispose:Boolean = false):void {
-			for each (var item:GroupItem in groupItems) {
-				removeChild(item.displayObject, dispose);
-			}
+			removeChildren(0, -1, dispose);
+			groupItems.length = 0;
+			
+			if (backgroundHolder)
+				super.addChildAt(backgroundHolder, 0);
 		}
 		
 		protected function getItemWidth(displayObject:DisplayObject):Number {
